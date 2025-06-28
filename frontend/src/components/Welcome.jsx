@@ -23,6 +23,8 @@ const Input = ({ placeholder, name, type, value, handleChange }) => (
 const Welcome = () => {
   const { currentAccount, connectWallet, handleChange, sendTransaction, formData, isLoading } = useContext(TransactionContext);
 
+  
+
   const handleSubmit = (e) => {
     const { addressTo, amount, keyword, message } = formData;
 
@@ -105,6 +107,7 @@ const Welcome = () => {
               ? <Loader />
               : (
                 <button
+                  disabled={!currentAccount}
                   type="button"
                   onClick={handleSubmit}
                   className="text-white w-full mt-2 border-[1px] p-2 border-[#3d4f7c] hover:bg-[#3d4f7c] rounded-full cursor-pointer"

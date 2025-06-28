@@ -7,7 +7,13 @@ export const TransactionContext = React.createContext();
 const {ethereum}=window
 
 const getEthereumContract = () => {
-  const provider = new ethers.providers.Web3Provider(ethereum);
+  const ethereum = window.ethereum;
+  if (!ethereum) {
+    alert("Ethereum object not found. Please install MetaMask.");
+    throw new Error("Ethereum object not found");
+  }
+  console.log("Ethers:", ethers);
+  const provider = new BrowserProvider(ethereum);
   const signer = provider.getSigner();
   const transactionContract = new ethers.Contract(
     contractAddress,
@@ -26,8 +32,8 @@ export const TransactionProvider = ({ children }) => {
   const [transactionCount, setTransactionCount] = useState(localStorage.getItem("transactionCount"));
 
 
-  const handleChange =(e,value)=>{
-    setFormData((prevState)=> ({...prevState,[e.target.name]:value}));
+  const handleChange =(e,name)=>{
+    setFormData((prevState)=> ({...prevState,[name]:e.target.value}));
   }
 
   const checkIfWalletIsConnected = async () => {
@@ -52,8 +58,11 @@ export const TransactionProvider = ({ children }) => {
     try {
       if (!ethereum) return alert("Please install Metamask");
 
-      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
-      setCurrentAccount(accounts[0]);
+      if (!currentAccount) {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        setCurrentAccount(accounts[0]);
+      }   
+
     } catch (error) {
       console.log("Error connecting wallet:", error);
 
@@ -63,6 +72,7 @@ export const TransactionProvider = ({ children }) => {
 
   const sendTransaction = async () => {
     try {
+      console.log("currentAccount:", currentAccount);
       if (!ethereum) return alert("Please install Metamask");
       const { addressTo, amount, keyword, message } = formData;
       const transactionContract = getEthereumContract();
